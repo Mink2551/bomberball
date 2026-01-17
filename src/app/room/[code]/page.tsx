@@ -386,29 +386,9 @@ export default function RoomPage() {
                 </Button>
             </div>
 
-            {/* How to Play Guide */}
-            <div className="w-full max-w-md mt-6 glass-card rounded-2xl p-5 animate-slide-up border border-white/5" style={{ animationDelay: '0.3s' }}>
-                <h3 className="text-primary font-bold mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
-                    📖 How to Play
-                </h3>
-                <ul className="text-sm text-gray-400 space-y-2">
-                    <li className="flex gap-3">
-                        <span className="bg-red-500/20 text-red-400 rounded-md p-1 block shrink-0">💣</span>
-                        <span>Pass the bomb before time runs out!</span>
-                    </li>
-                    <li className="flex gap-3">
-                        <span className="bg-blue-500/20 text-blue-400 rounded-md p-1 block shrink-0">🔄</span>
-                        <span>Click <strong className="text-white">SWAP</strong> to pass the bomb to others.</span>
-                    </li>
-                    <li className="flex gap-3">
-                        <span className="bg-purple-500/20 text-purple-400 rounded-md p-1 block shrink-0">🕵️</span>
-                        <span><strong className="text-white">STEAL</strong> bomb if you dare (5s cooldown).</span>
-                    </li>
-                    <li className="flex gap-3">
-                        <span className="bg-yellow-500/20 text-yellow-400 rounded-md p-1 block shrink-0">👑</span>
-                        <span>Last player standing wins the round!</span>
-                    </li>
-                </ul>
+            {/* Info footer */}
+            <div className="mt-8 text-center text-faint text-xs">
+                <p>All players must be ready before the game can start</p>
             </div>
         </main>
     );
