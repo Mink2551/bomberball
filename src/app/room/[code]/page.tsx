@@ -171,7 +171,7 @@ export default function RoomPage() {
     const canAddBot = isHost && players.length < room.maxPlayers;
 
     return (
-        <main className="min-h-screen flex flex-col items-center justify-center p-4 relative bg-[#020617] overflow-hidden">
+        <main className="min-h-screen flex flex-col items-center justify-center p-4 relative bg-[#020617] overflow-x-hidden">
             {/* Theme Toggle - Top Right */}
             {/* Top Right Actions */}
             <div className="fixed top-4 right-4 z-50">
@@ -235,30 +235,32 @@ export default function RoomPage() {
                                 }`}
                             style={{ animationDelay: `${0.05 * index}s` }}
                         >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
                                 {/* Avatar */}
                                 <div className={`
-                                    w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg
+                                    w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center text-white font-bold text-lg
                                     transition-all duration-300
                                     ${player.isHost ? 'avatar-host' : 'avatar'}
                                 `}>
                                     {player.displayName.charAt(0).toUpperCase()}
                                 </div>
 
-                                <div>
-                                    <p className="font-semibold text-foreground flex items-center gap-2">
-                                        {player.displayName}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-semibold text-foreground truncate block max-w-[120px] md:max-w-none">
+                                            {player.displayName}
+                                        </span>
                                         {player.id === user.id && (
-                                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30">
+                                            <span className="flex-shrink-0 text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30">
                                                 You
                                             </span>
                                         )}
                                         {player.isBot && (
-                                            <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                                            <span className="flex-shrink-0 text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30">
                                                 🤖 Bot
                                             </span>
                                         )}
-                                    </p>
+                                    </div>
                                     <div className="flex items-center gap-2 mt-1">
                                         {player.isHost && (
                                             <span className="text-xs badge-host px-2 py-0.5 rounded-full inline-flex items-center gap-1">
@@ -268,8 +270,12 @@ export default function RoomPage() {
                                         )}
                                         {player.isBot && isHost && (
                                             <button
-                                                onClick={() => handleRemoveBot(player.id)}
-                                                className="text-xs px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleRemoveBot(player.id);
+                                                }}
+                                                className="text-xs px-3 py-1 rounded-full bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors z-20 relative cursor-pointer font-medium"
                                             >
                                                 Remove
                                             </button>
@@ -380,9 +386,29 @@ export default function RoomPage() {
                 </Button>
             </div>
 
-            {/* Info footer */}
-            <div className="mt-8 text-center text-faint text-xs">
-                <p>All players must be ready before the game can start</p>
+            {/* How to Play Guide */}
+            <div className="w-full max-w-md mt-6 glass-card rounded-2xl p-5 animate-slide-up border border-white/5" style={{ animationDelay: '0.3s' }}>
+                <h3 className="text-primary font-bold mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
+                    📖 How to Play
+                </h3>
+                <ul className="text-sm text-gray-400 space-y-2">
+                    <li className="flex gap-3">
+                        <span className="bg-red-500/20 text-red-400 rounded-md p-1 block shrink-0">💣</span>
+                        <span>Pass the bomb before time runs out!</span>
+                    </li>
+                    <li className="flex gap-3">
+                        <span className="bg-blue-500/20 text-blue-400 rounded-md p-1 block shrink-0">🔄</span>
+                        <span>Click <strong className="text-white">SWAP</strong> to pass the bomb to others.</span>
+                    </li>
+                    <li className="flex gap-3">
+                        <span className="bg-purple-500/20 text-purple-400 rounded-md p-1 block shrink-0">🕵️</span>
+                        <span><strong className="text-white">STEAL</strong> bomb if you dare (5s cooldown).</span>
+                    </li>
+                    <li className="flex gap-3">
+                        <span className="bg-yellow-500/20 text-yellow-400 rounded-md p-1 block shrink-0">👑</span>
+                        <span>Last player standing wins the round!</span>
+                    </li>
+                </ul>
             </div>
         </main>
     );

@@ -169,7 +169,7 @@ export async function joinRoom(code: string, user: LocalUser): Promise<GameRoom 
 
 // Leave a room
 export async function leaveRoom(code: string, userId: string): Promise<void> {
-  const roomRef = doc(db, 'rooms', code);
+  const roomRef = doc(db, 'rooms', code.toUpperCase());
   const snapshot = await getDoc(roomRef);
   
   if (!snapshot.exists()) return;

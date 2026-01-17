@@ -67,7 +67,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 relative bg-[#020617] overflow-hidden">
+    <main className="min-h-screen flex flex-col items-center justify-center p-4 relative bg-[#020617] overflow-x-hidden">
       {/* Theme Toggle - Removed/Hidden */}
 
       {/* Cyber Grid Background */}
@@ -179,6 +179,11 @@ export default function Home() {
                 <ArrowRightIcon size={20} className="rotate-180" />
                 Join Room
               </Button>
+            </div>
+
+            {/* Info footer */}
+            <div className="mt-8 text-center text-faint text-xs">
+              <p>All players must be ready before the game can start</p>
             </div>
 
             <div className="pt-4 border-t border-border">

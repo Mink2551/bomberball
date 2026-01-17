@@ -48,6 +48,7 @@ export default function GamePage() {
     const botTimerRef = useRef<NodeJS.Timeout | null>(null);
     const prevBombsRef = useRef<Record<string, { expiresAt: number; ownerId: string }>>({});
     const prevElimCountRef = useRef(0);
+    const isHost = room?.hostId === user?.id;
     const [flyingBombs, setFlyingBombs] = useState<FlyingBombState[]>([]);
     const seatRefs = useRef<Record<string, HTMLDivElement | null>>({});
     const [failAnimPlayerId, setFailAnimPlayerId] = useState<string | null>(null);
@@ -273,26 +274,38 @@ export default function GamePage() {
     }, [room?.gameState?.eliminatedPlayers.length, room?.status]);
 
     // Bot AI (Same as before)
+    // Bot AI Controller
     useEffect(() => {
-        if (!room?.gameState || room.status !== 'playing') return;
-        const aliveBots = Object.values(room.players).filter(
-            p => p.isBot && !room.gameState!.eliminatedPlayers.includes(p.id)
-        );
-        aliveBots.forEach(bot => {
-            const isTheirTurn = room.gameState!.activePlayerId === bot.id;
-            const timeSinceTurn = Date.now() - room.gameState!.turnStartedAt;
-            const canSteal = timeSinceTurn >= 5000;
-            if (isTheirTurn || canSteal) {
-                const delay = isTheirTurn ? 1000 : 2000;
-                const timer = setTimeout(() => {
-                    botPlay(code, bot.id);
-                }, delay + Math.random() * 1000);
-                if (botTimerRef.current) clearTimeout(botTimerRef.current);
-                botTimerRef.current = timer;
-            }
-        });
-        return () => { if (botTimerRef.current) clearTimeout(botTimerRef.current); };
-    }, [room, code]);
+        if (!room?.gameState || room.status !== 'playing' || !isHost) return;
+
+        // Run bot logic periodically
+        const interval = setInterval(() => {
+            const now = Date.now();
+            const { activePlayerId, turnStartedAt, eliminatedPlayers } = room.gameState!;
+
+            Object.values(room.players).forEach(player => {
+                if (player.isBot && !eliminatedPlayers.includes(player.id)) {
+                    const isTurn = activePlayerId === player.id;
+                    const timeSinceTurn = now - turnStartedAt;
+                    const canSteal = timeSinceTurn >= 5000;
+
+                    // If it's my turn, I SHOULD play (service handles delays)
+                    if (isTurn) {
+                        botPlay(code, player.id);
+                    }
+                    // If I can steal, I might play
+                    else if (canSteal) {
+                        // Throttle stealing to avoid chaos/lag
+                        if (Math.random() < 0.2) {
+                            botPlay(code, player.id);
+                        }
+                    }
+                }
+            });
+        }, 1000); // Check every second
+
+        return () => clearInterval(interval);
+    }, [room?.status, isHost, code, room?.gameState?.activePlayerId]); // Re-run if status/turn changes
 
     // Action Handlers
     const handleSwap = async (targetId: string) => {
@@ -368,7 +381,7 @@ export default function GamePage() {
     const alivePlayers = players.filter(p => !gameState.eliminatedPlayers.includes(p.id));
     const eliminatedPlayers = players.filter(p => gameState.eliminatedPlayers.includes(p.id));
     const isMyTurn = gameState.activePlayerId === user.id && !amIEliminated;
-    const isHost = room.hostId === user.id;
+
     const isGameOver = room.status === 'finished';
     const winner = gameState.winnerId ? room.players[gameState.winnerId] : null;
     const amIWinner = gameState.winnerId === user.id;
@@ -489,7 +502,7 @@ export default function GamePage() {
 
                                 {/* Player Card */}
                                 <div className={`
-                                    relative w-32 md:w-40 backdrop-blur-xl rounded-2xl p-3 border-2 transition-all duration-300
+                                    relative w-32 md:w-40 backdrop-blur-xl rounded-2xl p-3 border-2 transition-all duration-300 z-50
                                     ${isActive ? 'border-primary bg-primary/20 shadow-[0_0_30px_rgba(6,182,212,0.3)] scale-105' : 'border-white/10 bg-surface/40 hover:bg-surface/60'}
                                     ${showSwapButton ? 'scale-110 border-green-400/50 bg-green-500/10 shadow-[0_0_20px_rgba(74,222,128,0.2)] animate-pulse-slow cursor-pointer hover:scale-115' : ''}
                                     ${player.id === failAnimPlayerId ? 'border-red-500 bg-red-500/40 shadow-[0_0_40px_rgba(239,68,68,0.6)] animate-pulse scale-110' : ''}
